@@ -9,13 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        Text("Lorem Ipsum dol amet kwjdfjbjbfjsbjaifsvihisfvjbsridihfshuhfusjhjhjdfshjf")
+            .fontWeight(.bold)
+            .font(.system(size:20))
+            .foregroundColor(.green)
+            .multilineTextAlignment(.center)
+            .lineLimit(nil)
+            .lineSpacing(/*@START_MENU_TOKEN@*/10.0/*@END_MENU_TOKEN@*/)
+            .padding()
+            .rotation3DEffect(
+                .degrees(60),axis: (x:1,y:0,z:0))
+            .shadow(color: .blue, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/,x: 0,y: 15)
+            .truncationMode(.middle)
     }
 }
 
