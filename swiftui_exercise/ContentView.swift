@@ -40,6 +40,7 @@ struct ContentView: View {
             }
         }
         .padding(.horizontal)
+        Spacer()
     }
 }
 
@@ -49,15 +50,19 @@ struct ContentView: View {
 
 struct HeaderView: View {
     var body: some View {
-        VStack(alignment:.leading,spacing: 2) {
-            Text("Pilih")
-                .font(.system(.largeTitle,design: .rounded))
-                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-            
-            Text("Paketmu")
-                .font(.system(.largeTitle,design: .rounded))
-                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+        HStack {
+            VStack(alignment:.leading,spacing: 2) {
+                Text("Pilih")
+                    .font(.system(.largeTitle,design: .rounded))
+                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                
+                Text("Paketmu")
+                    .font(.system(.largeTitle,design: .rounded))
+                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+            }
+            Spacer()
         }
+        .padding()
     }
 }
 
