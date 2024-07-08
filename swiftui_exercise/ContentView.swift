@@ -8,39 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var isPlaying = false
+    @State private var counter = 1
+
+    
     var body: some View {
         VStack {
-            HeaderView()
+            Button{
+                isPlaying.toggle()
+            }label: {
+                Image(systemName: isPlaying ? "stop.circle.fill" : "play.circle.fill")
+                    .font(.system(size: 150))
+                    .foregroundStyle( isPlaying ? .red : .green)
         }
-        HStack(spacing:15) {
-            CardPlan(title: "Basic", price: "200", textColor: .white, bgColor: .blue)
-            ZStack {
-                CardPlan(title: "Pro", price: "400", textColor: .white, bgColor: .purple)
-                
-                Text("Best for Beginner")
-                    .font(.system(.caption,design: .rounded))
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                    .foregroundColor(.white)
-                    .padding(5)
-                    .background(.black)
-                    .offset(x:0,y: 87)
-            }
+            .padding(.vertical)
+            ExtractedView(counter: $counter,color: .red)
         }
-        .padding(15)
-        VStack(spacing:15){
-            ZStack {
-                CardPlan(title: "Team", price: "1200", textColor: .white, bgColor: .green)
-                Text("Best for Team with 20 member")
-                    .font(.system(.caption,design: .rounded))
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                    .foregroundColor(.white)
-                    .padding(5)
-                    .background(.black)
-                    .offset(x:0,y: 87)
-            }
-        }
-        .padding(.horizontal)
-        Spacer()
     }
 }
 
@@ -48,46 +31,26 @@ struct ContentView: View {
     ContentView()
 }
 
-struct HeaderView: View {
-    var body: some View {
-        HStack {
-            VStack(alignment:.leading,spacing: 2) {
-                Text("Pilih")
-                    .font(.system(.largeTitle,design: .rounded))
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                
-                Text("Paketmu")
-                    .font(.system(.largeTitle,design: .rounded))
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-            }
-            Spacer()
-        }
-        .padding()
-    }
-}
 
-struct CardPlan: View {
-    var title : String
-    var price : String
-    var textColor : Color
-    var bgColor : Color
+
+struct ExtractedView: View {
+    @Binding var counter: Int
+    
+    var color : Color
     
     var body: some View {
-        VStack{
-            Text(title)
-                .font(.system(.title,design: .rounded))
-                .fontWeight(.black)
-                .foregroundColor(.white)
-            Text(price)
-                .font(.system(size: 25,weight: .heavy,design: .rounded))
-                .foregroundColor(textColor)
-            Text("per bulan")
-                .font(.headline)
-                .foregroundColor(.white)
+        Button{
+           counter -= 1
+        }label: {
+          Circle()
+                .frame(width: 150)
+                .foregroundStyle(color)
+                .overlay(content: {
+                    Text("\(counter)")
+                        .font(.system(size: 80,weight: .bold,design: .rounded))
+                        .foregroundStyle(.white)
+                })
+            
         }
-        .frame(minWidth: 0,maxWidth: .infinity,minHeight:100)
-        .padding(40)
-        .background(bgColor)
-        .cornerRadius(10)
     }
 }
