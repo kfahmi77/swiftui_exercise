@@ -8,49 +8,82 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isPlaying = false
-    @State private var counter = 1
+    @State private var circleColorChanged = false
+    @State private var heartColorChanged = false
+    @State private var heartSizeChanged = false
+    @State private var isLoading = false
+    @State private var progress: CGFloat = 0.0
 
     
     var body: some View {
-        VStack {
-            Button{
-                isPlaying.toggle()
-            }label: {
-                Image(systemName: isPlaying ? "stop.circle.fill" : "play.circle.fill")
-                    .font(.system(size: 150))
-                    .foregroundStyle( isPlaying ? .red : .green)
+        HStack {
+            ZStack{
+                    Circle()
+                    .frame(width: 200)
+                    .foregroundStyle(circleColorChanged ? Color(.systemGray5) : .red)
+                   
+                
+                Image(systemName: "heart.fill")
+                    .foregroundStyle(heartColorChanged ? .red : .white)
+                    .font(.system(size: 100))
+                    .scaleEffect(heartSizeChanged ? 1 : 0.5)
+                  
+            }
+            .onTapGesture {
+                withAnimation(.linear(duration: 0.5)){
+                    self.circleColorChanged.toggle()
+                    self.heartColorChanged.toggle()
+                    self.heartSizeChanged.toggle()
+                }
+            }
+            
+        .padding(.vertical)
         }
-            .padding(.vertical)
-            ExtractedView(counter: $counter,color: .red)
+        
+        ZStack {
+            Circle()
+                .stroke(.gray, lineWidth: 14)
+                .frame(width: 100)
+            
+            Circle()
+                .trim(from: 0,to: 0.2)
+                .stroke(Color(.systemGray5),lineWidth: 7)
+                .frame(width: 100)
+                .rotationEffect(Angle(degrees: isLoading ? 360 : 0))
+                .animation(.linear(duration: 1).repeatForever(autoreverses: false),value: isLoading)
+                .onAppear(){
+                    self.isLoading = true
+            }
+
         }
+        
+        .padding(.vertical)
+        .padding(.vertical)
+        ZStack{
+            Text("Loading")
+                .font(.system(.body,design: .rounded))
+                .bold()
+                .offset(x:0,y: -25)
+            
+            
+            RoundedRectangle(cornerRadius: 3)
+                .stroke(Color(.systemGray5),lineWidth: 5)
+                .frame(width: 250,height: 3)
+            
+            RoundedRectangle(cornerRadius: 3)
+                .stroke(Color(.green),lineWidth: 5)
+                .frame(width: 30,height: 3)
+                .offset(x:isLoading ? 100  : -110,y: 0)
+                .animation(.linear(duration: 1).repeatForever(autoreverses: true),value: isLoading)
+            
+        }
+        .onAppear(){
+            self.isLoading = true
+        }
+        
     }
 }
 
 #Preview {
     ContentView()
-}
-
-
-
-struct ExtractedView: View {
-    @Binding var counter: Int
-    
-    var color : Color
-    
-    var body: some View {
-        Button{
-           counter -= 1
-        }label: {
-          Circle()
-                .frame(width: 150)
-                .foregroundStyle(color)
-                .overlay(content: {
-                    Text("\(counter)")
-                        .font(.system(size: 80,weight: .bold,design: .rounded))
-                        .foregroundStyle(.white)
-                })
-            
-        }
-    }
 }
