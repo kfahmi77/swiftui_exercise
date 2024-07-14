@@ -8,82 +8,87 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var circleColorChanged = false
-    @State private var heartColorChanged = false
-    @State private var heartSizeChanged = false
-    @State private var isLoading = false
-    @State private var progress: CGFloat = 0.0
+
+    var foods = [
+        Food(name: "Bakso", image: "bakso"),
+        Food(name: "Martabak", image: "martabak"),
+        Food(name: "Nasi Campur", image: "nasi-campur"),
+        Food(name: "Pangsit", image: "pangsit"),
+        Food(name: "Ramen", image: "ramen"),
+        Food(name: "Rendang", image: "rendang"),
+        Food(name: "Sate", image: "sate"),
+        Food(name: "Tumis Kangkung", image: "sayur"),
 
     
+    ]
+    
     var body: some View {
-        HStack {
-            ZStack{
-                    Circle()
-                    .frame(width: 200)
-                    .foregroundStyle(circleColorChanged ? Color(.systemGray5) : .red)
-                   
-                
-                Image(systemName: "heart.fill")
-                    .foregroundStyle(heartColorChanged ? .red : .white)
-                    .font(.system(size: 100))
-                    .scaleEffect(heartSizeChanged ? 1 : 0.5)
-                  
-            }
-            .onTapGesture {
-                withAnimation(.linear(duration: 0.5)){
-                    self.circleColorChanged.toggle()
-                    self.heartColorChanged.toggle()
-                    self.heartSizeChanged.toggle()
+        List{
+            ForEach(foods.indices,id:\.self){index in
+                if(0...1).contains(index){
+                    FullRowImage(food: self.foods[index])
+                }else{
+                    FoodRowImage(food: self.foods[index])
                 }
             }
-            
-        .padding(.vertical)
+            .listRowSeparator(.hidden)
         }
-        
-        ZStack {
-            Circle()
-                .stroke(.gray, lineWidth: 14)
-                .frame(width: 100)
-            
-            Circle()
-                .trim(from: 0,to: 0.2)
-                .stroke(Color(.systemGray5),lineWidth: 7)
-                .frame(width: 100)
-                .rotationEffect(Angle(degrees: isLoading ? 360 : 0))
-                .animation(.linear(duration: 1).repeatForever(autoreverses: false),value: isLoading)
-                .onAppear(){
-                    self.isLoading = true
-            }
-
-        }
-        
-        .padding(.vertical)
-        .padding(.vertical)
-        ZStack{
-            Text("Loading")
-                .font(.system(.body,design: .rounded))
-                .bold()
-                .offset(x:0,y: -25)
-            
-            
-            RoundedRectangle(cornerRadius: 3)
-                .stroke(Color(.systemGray5),lineWidth: 5)
-                .frame(width: 250,height: 3)
-            
-            RoundedRectangle(cornerRadius: 3)
-                .stroke(Color(.green),lineWidth: 5)
-                .frame(width: 30,height: 3)
-                .offset(x:isLoading ? 100  : -110,y: 0)
-                .animation(.linear(duration: 1).repeatForever(autoreverses: true),value: isLoading)
-            
-        }
-        .onAppear(){
-            self.isLoading = true
-        }
-        
     }
 }
 
 #Preview {
     ContentView()
+}
+
+struct Food : Identifiable {
+    var id = UUID()
+    var name : String
+    var image : String
+    
+}
+
+struct FoodRowImage: View {
+    var food : Food
+    var body: some View {
+        HStack{
+            Image(food.image)
+                .resizable()
+                .frame(width: 60,height: 60)
+                .cornerRadius(12)
+                .overlay(
+                    Rectangle()
+                        .foregroundStyle(.black)
+                        .cornerRadius(12)
+                        .opacity(0.2)
+                )
+            Text(food.name)
+                .font(.system(.title,design: .rounded))
+                .fontWeight(.regular)
+                .foregroundStyle(.black)
+        }
+    }
+}
+
+struct FullRowImage :View {
+    var food : Food
+    var body: some View{
+        ZStack{
+            Image(food.image)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 200)
+                .cornerRadius(12)
+                .overlay(content: {
+                    Rectangle()
+                        .foregroundStyle(.black)
+                        .cornerRadius(12)
+                        .opacity(0.2)
+                })
+            Text(food.name)
+                .font(.system(.title,design: .rounded))
+                .fontWeight(.black)
+                .foregroundStyle(.white)
+            
+        }
+    }
 }
