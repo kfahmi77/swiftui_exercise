@@ -8,6 +8,18 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    init(){
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.green, .font : UIFont(name: "ArialRoundedMTBold", size: 30) ?? 30]
+        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.green, .font : UIFont(name: "ArialRoundedMTBold", size: 30) ?? 30]
+        
+        UINavigationBar.appearance().standardAppearance = navBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+        UINavigationBar.appearance().compactAppearance = navBarAppearance
+        
+        
+    }
 
     var foods = [
         Food(name: "Bakso", image: "bakso"),
@@ -18,23 +30,26 @@ struct ContentView: View {
         Food(name: "Rendang", image: "rendang"),
         Food(name: "Sate", image: "sate"),
         Food(name: "Tumis Kangkung", image: "sayur"),
-
-    
     ]
     
     var body: some View {
-        List{
-            ForEach(foods.indices,id:\.self){index in
-                if(0...1).contains(index){
-                    FullRowImage(food: self.foods[index])
-                }else{
-                    FoodRowImage(food: self.foods[index])
-                }
-            }
-            .listRowSeparator(.hidden)
+        NavigationStack{
+            List(content: {
+                ForEach(foods, content: { food in
+                    NavigationLink(destination: FoodDetailView(food: food))
+                    {
+                        FoodRowImage(food: food)
+                    }
+                   
+                })
+            })
+            .listStyle(.plain)
+            .navigationTitle("Menu Makanan")
+            .navigationBarTitleDisplayMode(.automatic)
+        }
+        .accentColor(.black)
         }
     }
-}
 
 #Preview {
     ContentView()
@@ -88,7 +103,41 @@ struct FullRowImage :View {
                 .font(.system(.title,design: .rounded))
                 .fontWeight(.black)
                 .foregroundStyle(.white)
-            
         }
+    }
+}
+
+struct FoodDetailView : View {
+    var food : Food
+    
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode
+    
+    
+    var body: some View{
+        VStack{
+            Image(food.image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+            
+            Text(food.name)
+                .font(.system(.title,design: .rounded))
+                .fontWeight(.black)
+            
+            Spacer()
+        }
+        
+        .navigationBarBackButtonHidden(true)
+        .toolbar{
+            ToolbarItem(placement: .topBarLeading, content: {
+                Button{
+                    presentationMode.wrappedValue.dismiss()
+                } label: {
+                    Text("\(Image(systemName: "chevron.left")) \(food.name)")
+                        .foregroundStyle(.black)
+                }
+            })
+        }
+        
     }
 }
