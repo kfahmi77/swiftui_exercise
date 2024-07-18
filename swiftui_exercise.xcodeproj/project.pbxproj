@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D1B23A6B2C494DCE004C3712 /* RichTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B23A6A2C494DCE004C3712 /* RichTextEditor.swift */; };
 		D1F11DA02C318F2E008E71DA /* swiftui_exerciseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F11D9F2C318F2E008E71DA /* swiftui_exerciseApp.swift */; };
 		D1F11DA22C318F2E008E71DA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F11DA12C318F2E008E71DA /* ContentView.swift */; };
 		D1F11DA42C318F30008E71DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1F11DA32C318F30008E71DA /* Assets.xcassets */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D1B23A6A2C494DCE004C3712 /* RichTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichTextEditor.swift; sourceTree = "<group>"; };
 		D1F11D9C2C318F2E008E71DA /* swiftui_exercise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = swiftui_exercise.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1F11D9F2C318F2E008E71DA /* swiftui_exerciseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swiftui_exerciseApp.swift; sourceTree = "<group>"; };
 		D1F11DA12C318F2E008E71DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 		D1F11D9E2C318F2E008E71DA /* swiftui_exercise */ = {
 			isa = PBXGroup;
 			children = (
+				D1B23A6A2C494DCE004C3712 /* RichTextEditor.swift */,
 				D1F11D9F2C318F2E008E71DA /* swiftui_exerciseApp.swift */,
 				D1F11DA12C318F2E008E71DA /* ContentView.swift */,
 				D1F11DA32C318F30008E71DA /* Assets.xcassets */,
@@ -257,6 +260,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B23A6B2C494DCE004C3712 /* RichTextEditor.swift in Sources */,
 				D1F11DA22C318F2E008E71DA /* ContentView.swift in Sources */,
 				D1F11DA02C318F2E008E71DA /* swiftui_exerciseApp.swift in Sources */,
 			);

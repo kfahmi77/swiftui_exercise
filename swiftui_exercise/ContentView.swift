@@ -7,213 +7,299 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    
-    init(){
-        let navBarAppearance = UINavigationBarAppearance()
-        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.green, .font : UIFont(name: "ArialRoundedMTBold", size: 30) ?? 30]
-        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.green, .font : UIFont(name: "ArialRoundedMTBold", size: 30) ?? 30]
-        
-        UINavigationBar.appearance().standardAppearance = navBarAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
-        UINavigationBar.appearance().compactAppearance = navBarAppearance
-        
-        
-    }
+// Model for Note
+struct Note: Identifiable {
+    let id = UUID()
+    var title: String
+    var content: NSAttributedString
+    var date: Date
+}
 
-   @State var foods = [
-        Food(name: "Bakso", image: "bakso",price: "10000",englishName: "Meatball",priceLevel: 1,isFavorite: true),
-        Food(name: "Martabak", image: "martabak",price: "20000",englishName: "Meat Pancake",priceLevel: 2),
-        Food(name: "Nasi Campur", image: "nasi-campur",price: "25000",englishName: "Mixed Rice",priceLevel: 3),
-        Food(name: "Pangsit", image: "pangsit",price: "5000",englishName: "Dumpling",priceLevel: 0),
-        Food(name: "Ramen", image: "ramen",price: "45000",englishName: "Ramen",priceLevel: 4),
-        Food(name: "Rendang", image: "rendang",price: "35000",englishName: "Beef Meat with Coconut Milk",priceLevel: 3),
-        Food(name: "Sate", image: "sate",price: "40000",englishName: "Satay",priceLevel: 3),
-        Food(name: "Tumis Kangkung", image: "sayur",price: "20000",englishName: "Saute Water Spinach",priceLevel: 2),
-        Food(name: "Bakso", image: "bakso",price: "10000",englishName: "Meatball",priceLevel: 1,isFavorite: true),
-        Food(name: "Martabak", image: "martabak",price: "20000",englishName: "Meat Pancake",priceLevel: 2),
-        Food(name: "Nasi Campur", image: "nasi-campur",price: "25000",englishName: "Mixed Rice",priceLevel: 3),
-        Food(name: "Pangsit", image: "pangsit",price: "5000",englishName: "Dumpling",priceLevel: 0),
-        Food(name: "Ramen", image: "ramen",price: "45000",englishName: "Ramen",priceLevel: 4),
-        Food(name: "Rendang", image: "rendang",price: "35000",englishName: "Beef Meat with Coconut Milk",priceLevel: 3),
-        Food(name: "Sate", image: "sate",price: "40000",englishName: "Satay",priceLevel: 3),
-        Food(name: "Tumis Kangkung", image: "sayur",price: "20000",englishName: "Saute Water Spinach",priceLevel: 2),
-    ]
-    
-    @State private var selectedFood : Food?
+// Sample data for preview
+let sampleNotes = [
+    Note(title: "Meeting Notes", content: NSAttributedString(string: "Discuss project roadmap and deadlines."), date: Date()),
+    Note(title: "Grocery List", content: NSAttributedString(string: "Milk, Eggs, Bread, Butter"), date: Date().addingTimeInterval(-86400)),
+    Note(title: "Travel Plans", content: NSAttributedString(string: "Book flights and hotel for vacation."), date: Date().addingTimeInterval(-172800))
+]
+
+// Main view
+struct ContentView: View {
+    @State private var notes = sampleNotes
+    @State private var showAddNote = false
     
     var body: some View {
-        NavigationStack{
-            List{
-                if foods.isEmpty{
-                    Text("Food is Empty")
-                    
-                }else{
-                    ForEach(foods){ food in
-                      FoodRowImage(food: food)
-                            .contextMenu{
-                                Button( action:{
-                                    self.checkIn(item: food)
-                                }){
-                                    HStack{
-                                        Text("Book-in")
-                                            .foregroundStyle(.green)
-                                        Image(systemName: "checkmark.seal.fill")
-                                    }
-                                }
-                                
-                                Button( action:{
-                                    self.delete(item: food)
-                                }){
-                                    HStack{
-                                        Text("Delete")
-                                        Image(systemName: "trash.fill")
-                                            .foregroundStyle(.red)
-                                    }
-                                }
-                                
-                                Button( action:{
-                                    self.setFavorite(item: food)
-                                }){
-                                    HStack{
-                                        Text("Favorite")
-                                        Image(systemName: "star.fill")
-                                    }
-                                }
-                                .onTapGesture{
-                                    self.selectedFood = food
-                                }
-                                
-                            }
+        NavigationView {
+            VStack {
+                HStack {
+                    Text("NoteKeeper")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding()
+                    Spacer()
+                    Button(action: {
+                        showAddNote = true
+                    }) {
+                        Text("NEW NOTE")
+                            .font(.headline)
+                            .padding()
+                            .background(Color.yellow)
+                            .foregroundColor(.black)
+                            .cornerRadius(8)
                     }
-                    .onDelete(perform: { indexSet in
-                        self.foods.remove(atOffsets: indexSet)
-                    })
+                    .padding()
                 }
-
+                List {
+                    ForEach(notes) { note in
+                        NavigationLink(destination: NoteDetailView(note: note, notes: $notes)) {
+                            NoteRow(note: note)
+                        }
+                    }
+                    .onDelete(perform: deleteNote)
+                }
             }
-        
-            .listStyle(.plain)
-            .navigationTitle("Food Menu")
-            .navigationBarTitleDisplayMode(.automatic)
-        }
-        .accentColor(.black)
-        }
-    
-    private func delete(item food : Food){
-        if let index = self.foods.firstIndex(where: {$0.id == food.id}){
-            self.foods.remove(at: index)
+            .navigationBarHidden(true)
+            .sheet(isPresented: $showAddNote) {
+                AddNoteView(notes: $notes)
+            }
         }
     }
     
-    private func setFavorite(item food : Food){
-        if let index = self.foods.firstIndex(where: {$0.id == food.id}){
-            self.foods[index].isFavorite.toggle()
+    func deleteNote(at offsets: IndexSet) {
+        notes.remove(atOffsets: offsets)
+    }
+}
+
+// View for each note row
+struct NoteRow: View {
+    var note: Note
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(note.title)
+                .font(.headline)
+                .padding(.bottom, 2)
+            Text(note.content.string)
+                .lineLimit(1)
+                .foregroundColor(.gray)
+                .padding(.bottom, 2)
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(8)
+    }
+}
+
+
+struct NoteDetailView: View {
+    var note: Note
+    @Binding var notes: [Note]
+    @State private var showEditNote = false
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(note.title)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding(.bottom, 5)
+            RichTextEditor(text: .constant(note.content))
+                .frame(height: 200)
+                .padding(.bottom, 20)
+            HStack {
+                Button(action: {
+                    showEditNote = true
+                }) {
+                    Text("EDIT")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.yellow)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+                Spacer()
+                Button(action: {
+                    if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                        notes.remove(at: index)
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }) {
+                    Text("DELETE")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.yellow)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+            }
+            Spacer()
+        }
+        .padding()
+        .navigationBarTitle("View Note", displayMode: .inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: Button(action: {
+            presentationMode.wrappedValue.dismiss()
+        }) {
+            HStack {
+                Image(systemName: "arrow.left")
+                Text("BACK")
+            }
+            .foregroundColor(.black)
+        })
+        .background(Color.yellow)
+        .sheet(isPresented: $showEditNote) {
+            EditNoteView(note: note, notes: $notes)
         }
     }
+}
+
+// View to add a new note
+struct AddNoteView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var notes: [Note]
+    @State private var title = ""
+    @State private var content = NSAttributedString(string: "")
     
-    private  func checkIn(item food : Food){
-        if let index = self.foods.firstIndex(where: {$0.id == food.id}){
-            self.foods[index].isBooked.toggle()
+    var body: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "arrow.left")
+                        .foregroundColor(.black)
+                }
+                .padding()
+                Spacer()
+                Text("Create Note")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding()
+                Spacer()
+            }
+            .background(Color.yellow)
+            
+            Form {
+                Section(header: Text("Title")) {
+                    TextField("Enter title", text: $title)
+                        .background(Color.gray.opacity(0.1))
+                }
+                Section(header: Text("Content")) {
+                    RichTextEditor(text: $content)
+                        .background(Color.gray.opacity(0.1))
+                        .frame(height: 200)
+                }
+            }
+            
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("DISCARD")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.yellow)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+                Spacer()
+                Button(action: {
+                    let newNote = Note(title: title, content: content, date: Date())
+                    notes.append(newNote)
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("SAVE")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.yellow)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+            }
+            .padding()
+            .background(Color.yellow)
         }
     }
+}
+
+// View to edit an existing note
+struct EditNoteView: View {
+    var note: Note
+    @Binding var notes: [Note]
+    @Environment(\.presentationMode) var presentationMode
+    @State private var title: String
+    @State private var content: NSAttributedString
     
+    init(note: Note, notes: Binding<[Note]>) {
+        self.note = note
+        self._notes = notes
+        self._title = State(initialValue: note.title)
+        self._content = State(initialValue: note.content)
     }
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "arrow.left")
+                        .foregroundColor(.black)
+                }
+                .padding()
+                Spacer()
+                Text("Edit Note")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding()
+                Spacer()
+            }
+            .background(Color.yellow)
+            
+            Form {
+                           Section(header: Text("Title")) {
+                               TextField("Enter title", text: $title)
+                                   .background(Color.gray.opacity(0.1))
+                           }
+                           Section(header: Text("Content")) {
+                               RichTextEditor(text: $content)
+                                   .background(Color.gray.opacity(0.1))
+                                   .frame(height: 200)
+                           }
+                       }
+            
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("DISCARD")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.yellow)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+                Spacer()
+                Button(action: {
+                    if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                        notes[index].title = title
+                        notes[index].content = content
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }) {
+                    Text("SAVE")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.yellow)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                }
+            }
+            .padding()
+            .background(Color.yellow)
+        }
+    }
+}
 
 #Preview {
     ContentView()
-}
-
-struct Food : Identifiable {
-    var id = UUID()
-    var name : String
-    var image : String
-    var price : String
-    var englishName : String
-    var priceLevel : Int
-    var isFavorite : Bool = false
-    var isBooked : Bool = false
-    
-}
-
-struct FoodRowImage: View {
-    var food : Food
-    var body: some View {
-        HStack{
-            Image(food.image)
-                .resizable()
-                .frame(width: 60,height: 60)
-                .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
-                .padding(.trailing,10)
-               
-            VStack(alignment: .leading, content: {
-                HStack(content: {
-                    Text(food.name)
-                        .font(.system(.body,design: .rounded))
-                        .bold()
-                    
-                    Text(String(repeating: "$", count: food.priceLevel))
-                        .font(.subheadline)
-                        .foregroundStyle(.gray)
-                })
-                Text(food.englishName)
-                    .font(.system(.subheadline,design: .rounded))
-                    .bold()
-                    .foregroundStyle(.secondary)
-                
-                Text("Rp \(food.price)")
-                    .font(.system(.subheadline,design: .rounded))
-                    .foregroundStyle(.secondary)
-            })
-            
-            Spacer()
-                .layoutPriority(-100)
-            
-            if food.isBooked {
-                Image(systemName: "checkmark.seal.fill")
-                    .foregroundStyle(.red)
-            }
-            
-            if food.isFavorite{
-                Image(systemName: "star.fill")
-                    .foregroundStyle(.yellow)
-            }
-            
-        }
-    }
-}
-
-struct FoodDetailView : View {
-    var food : Food
-    
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.presentationMode) var presentationMode
-    
-    
-    var body: some View{
-        VStack{
-            Image(food.image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            
-            Text(food.name)
-                .font(.system(.title,design: .rounded))
-                .fontWeight(.black)
-            
-            Spacer()
-        }
-        
-        .navigationBarBackButtonHidden(true)
-        .toolbar{
-            ToolbarItem(placement: .topBarLeading, content: {
-                Button{
-                    presentationMode.wrappedValue.dismiss()
-                } label: {
-                    Text("\(Image(systemName: "chevron.left")) \(food.name)")
-                        .foregroundStyle(.black)
-                }
-            })
-        }
-        
-    }
 }
