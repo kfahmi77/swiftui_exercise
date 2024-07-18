@@ -21,34 +21,103 @@ struct ContentView: View {
         
     }
 
-    var foods = [
-        Food(name: "Bakso", image: "bakso"),
-        Food(name: "Martabak", image: "martabak"),
-        Food(name: "Nasi Campur", image: "nasi-campur"),
-        Food(name: "Pangsit", image: "pangsit"),
-        Food(name: "Ramen", image: "ramen"),
-        Food(name: "Rendang", image: "rendang"),
-        Food(name: "Sate", image: "sate"),
-        Food(name: "Tumis Kangkung", image: "sayur"),
+   @State var foods = [
+        Food(name: "Bakso", image: "bakso",price: "10000",englishName: "Meatball",priceLevel: 1,isFavorite: true),
+        Food(name: "Martabak", image: "martabak",price: "20000",englishName: "Meat Pancake",priceLevel: 2),
+        Food(name: "Nasi Campur", image: "nasi-campur",price: "25000",englishName: "Mixed Rice",priceLevel: 3),
+        Food(name: "Pangsit", image: "pangsit",price: "5000",englishName: "Dumpling",priceLevel: 0),
+        Food(name: "Ramen", image: "ramen",price: "45000",englishName: "Ramen",priceLevel: 4),
+        Food(name: "Rendang", image: "rendang",price: "35000",englishName: "Beef Meat with Coconut Milk",priceLevel: 3),
+        Food(name: "Sate", image: "sate",price: "40000",englishName: "Satay",priceLevel: 3),
+        Food(name: "Tumis Kangkung", image: "sayur",price: "20000",englishName: "Saute Water Spinach",priceLevel: 2),
+        Food(name: "Bakso", image: "bakso",price: "10000",englishName: "Meatball",priceLevel: 1,isFavorite: true),
+        Food(name: "Martabak", image: "martabak",price: "20000",englishName: "Meat Pancake",priceLevel: 2),
+        Food(name: "Nasi Campur", image: "nasi-campur",price: "25000",englishName: "Mixed Rice",priceLevel: 3),
+        Food(name: "Pangsit", image: "pangsit",price: "5000",englishName: "Dumpling",priceLevel: 0),
+        Food(name: "Ramen", image: "ramen",price: "45000",englishName: "Ramen",priceLevel: 4),
+        Food(name: "Rendang", image: "rendang",price: "35000",englishName: "Beef Meat with Coconut Milk",priceLevel: 3),
+        Food(name: "Sate", image: "sate",price: "40000",englishName: "Satay",priceLevel: 3),
+        Food(name: "Tumis Kangkung", image: "sayur",price: "20000",englishName: "Saute Water Spinach",priceLevel: 2),
     ]
+    
+    @State private var selectedFood : Food?
     
     var body: some View {
         NavigationStack{
-            List(content: {
-                ForEach(foods, content: { food in
-                    NavigationLink(destination: FoodDetailView(food: food))
-                    {
-                        FoodRowImage(food: food)
+            List{
+                if foods.isEmpty{
+                    Text("Food is Empty")
+                    
+                }else{
+                    ForEach(foods){ food in
+                      FoodRowImage(food: food)
+                            .contextMenu{
+                                Button( action:{
+                                    self.checkIn(item: food)
+                                }){
+                                    HStack{
+                                        Text("Book-in")
+                                            .foregroundStyle(.green)
+                                        Image(systemName: "checkmark.seal.fill")
+                                    }
+                                }
+                                
+                                Button( action:{
+                                    self.delete(item: food)
+                                }){
+                                    HStack{
+                                        Text("Delete")
+                                        Image(systemName: "trash.fill")
+                                            .foregroundStyle(.red)
+                                    }
+                                }
+                                
+                                Button( action:{
+                                    self.setFavorite(item: food)
+                                }){
+                                    HStack{
+                                        Text("Favorite")
+                                        Image(systemName: "star.fill")
+                                    }
+                                }
+                                .onTapGesture{
+                                    self.selectedFood = food
+                                }
+                                
+                            }
                     }
-                   
-                })
-            })
+                    .onDelete(perform: { indexSet in
+                        self.foods.remove(atOffsets: indexSet)
+                    })
+                }
+
+            }
+        
             .listStyle(.plain)
-            .navigationTitle("Menu Makanan")
+            .navigationTitle("Food Menu")
             .navigationBarTitleDisplayMode(.automatic)
         }
         .accentColor(.black)
         }
+    
+    private func delete(item food : Food){
+        if let index = self.foods.firstIndex(where: {$0.id == food.id}){
+            self.foods.remove(at: index)
+        }
+    }
+    
+    private func setFavorite(item food : Food){
+        if let index = self.foods.firstIndex(where: {$0.id == food.id}){
+            self.foods[index].isFavorite.toggle()
+        }
+    }
+    
+    private  func checkIn(item food : Food){
+        if let index = self.foods.firstIndex(where: {$0.id == food.id}){
+            self.foods[index].isBooked.toggle()
+        }
+    }
+    
     }
 
 #Preview {
@@ -59,6 +128,11 @@ struct Food : Identifiable {
     var id = UUID()
     var name : String
     var image : String
+    var price : String
+    var englishName : String
+    var priceLevel : Int
+    var isFavorite : Bool = false
+    var isBooked : Bool = false
     
 }
 
@@ -69,40 +143,42 @@ struct FoodRowImage: View {
             Image(food.image)
                 .resizable()
                 .frame(width: 60,height: 60)
-                .cornerRadius(12)
-                .overlay(
-                    Rectangle()
-                        .foregroundStyle(.black)
-                        .cornerRadius(12)
-                        .opacity(0.2)
-                )
-            Text(food.name)
-                .font(.system(.title,design: .rounded))
-                .fontWeight(.regular)
-                .foregroundStyle(.black)
-        }
-    }
-}
-
-struct FullRowImage :View {
-    var food : Food
-    var body: some View{
-        ZStack{
-            Image(food.image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(height: 200)
-                .cornerRadius(12)
-                .overlay(content: {
-                    Rectangle()
-                        .foregroundStyle(.black)
-                        .cornerRadius(12)
-                        .opacity(0.2)
+                .clipShape(/*@START_MENU_TOKEN@*/Circle()/*@END_MENU_TOKEN@*/)
+                .padding(.trailing,10)
+               
+            VStack(alignment: .leading, content: {
+                HStack(content: {
+                    Text(food.name)
+                        .font(.system(.body,design: .rounded))
+                        .bold()
+                    
+                    Text(String(repeating: "$", count: food.priceLevel))
+                        .font(.subheadline)
+                        .foregroundStyle(.gray)
                 })
-            Text(food.name)
-                .font(.system(.title,design: .rounded))
-                .fontWeight(.black)
-                .foregroundStyle(.white)
+                Text(food.englishName)
+                    .font(.system(.subheadline,design: .rounded))
+                    .bold()
+                    .foregroundStyle(.secondary)
+                
+                Text("Rp \(food.price)")
+                    .font(.system(.subheadline,design: .rounded))
+                    .foregroundStyle(.secondary)
+            })
+            
+            Spacer()
+                .layoutPriority(-100)
+            
+            if food.isBooked {
+                Image(systemName: "checkmark.seal.fill")
+                    .foregroundStyle(.red)
+            }
+            
+            if food.isFavorite{
+                Image(systemName: "star.fill")
+                    .foregroundStyle(.yellow)
+            }
+            
         }
     }
 }
