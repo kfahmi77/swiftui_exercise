@@ -41,6 +41,7 @@ struct ContentView: View {
     ]
     
     @State private var selectedFood : Food?
+    @State private var showSettings : Bool = false
     
     var body: some View {
         NavigationStack{
@@ -95,6 +96,22 @@ struct ContentView: View {
         
             .listStyle(.plain)
             .navigationTitle("Food Menu")
+            .navigationTitle("Settings")
+            .toolbar{
+                ToolbarItem(placement: .topBarTrailing, content: {
+                    Button(action: {
+                        self.showSettings = true
+                    },
+                           label: {
+                        Image(systemName: "gear")
+                            .font(.title2)
+                            .foregroundStyle(.black)
+                    })
+                })
+            }
+            .sheet(isPresented: $showSettings, content: {
+                SettingView()
+            })
             .navigationBarTitleDisplayMode(.automatic)
         }
         .accentColor(.black)
